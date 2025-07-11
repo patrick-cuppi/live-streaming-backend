@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --experimental-strip-types --trace-warnings src/server.ts"
+    "start": "node --env-file .env --experimental-strip-types --trace-warnings src/server.ts",
+    "dev": "node --env-file .env --experimental-strip-types --trace-warnings --watch src/server.ts"
   },
   "keywords": [],
   "author": "",
