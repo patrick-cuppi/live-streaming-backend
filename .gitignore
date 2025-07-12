@@ -4,6 +4,9 @@
 .pnp.js
 .vscode
 
+# environment
+/docker
+
 # testing
 /coverage
 
