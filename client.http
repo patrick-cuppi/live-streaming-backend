@@ -4,15 +4,19 @@
 ###
 
 # Health Check
+# @name healthCheck
 GET {{baseUrl}}/health
 
 ###
 
 # Get Rooms
+# @name getRooms
 GET {{baseUrl}}/rooms
 
 ###
 
+# Create Room
+# @name createRoom
 POST {{baseUrl}}/rooms
 Content-Type: application/json
 
@@ -20,3 +24,13 @@ Content-Type: application/json
   "name": "Sala de teste",
   "description": "Testandooo...."
 }
+
+###
+
+@roomId = {{createRoom.response.body.$.roomId}}
+
+###
+
+# Get Questions by Room
+# @name getQuestionsByRoom
+GET {{baseUrl}}/rooms/{{roomId}}/questions
