@@ -12,7 +12,7 @@ export const createQuestionRoute: FastifyPluginCallbackZod = (app) => {
           roomId: z.string(),
         }),
         body: z.object({
-          question: z.string().min(5)
+          question: z.string().min(5),
         }),
       },
     },
@@ -24,16 +24,16 @@ export const createQuestionRoute: FastifyPluginCallbackZod = (app) => {
         .insert(schema.questions)
         .values({
           roomId,
-          question
+          question,
         })
         .returning()
 
       const insertedQuestion = result[0]
-      
+
       if (!insertedQuestion) {
         throw new Error('Error creating question')
       }
-      
+
       return reply.status(201).send({ roomId: insertedQuestion.id })
     }
   )
