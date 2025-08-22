@@ -12,3 +12,11 @@ GET {{baseUrl}}/health
 GET {{baseUrl}}/rooms
 
 ###
+
+POST {{baseUrl}}/rooms
+Content-Type: application/json
+
+{
+  "name": "Sala de teste",
+  "description": "Testandooo...."
+}
