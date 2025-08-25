@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { db } from '../../db/connection.ts'
 import { schema } from '../../db/schema/index.ts'
 
-export const createRoomsRoute: FastifyPluginCallbackZod = (app) => {
+export const createRoomRoute: FastifyPluginCallbackZod = (app) => {
   app.post(
     '/rooms',
     {
@@ -26,11 +26,11 @@ export const createRoomsRoute: FastifyPluginCallbackZod = (app) => {
         .returning()
 
       const insertedRoom = result[0]
-      
+
       if (!insertedRoom) {
         throw new Error('Error creating room')
       }
-      
+
       return reply.status(201).send({ roomId: insertedRoom.id })
     }
   )
