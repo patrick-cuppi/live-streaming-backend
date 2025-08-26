@@ -70,7 +70,10 @@ export const createQuestionRoute: FastifyPluginCallbackZod = (app) => {
         throw new Error('Error creating question')
       }
 
-      return reply.status(201).send({ roomId: insertedQuestion.id })
+      return reply.status(201).send({
+        questionId: insertedQuestion.id,
+        answer,
+      })
     }
   )
 }
