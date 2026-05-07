@@ -1,162 +1,167 @@
-# Agents API - Backend
+# 🔴 Live Streaming Backend API
 
-Este é o projeto backend para uma aplicação de transmissão ao vivo, construída com Fastify e TypeScript. Ele permite que usuários criem e participem de salas de streaming, com uma funcionalidade dedicada para gravação e envio de áudio para interação em tempo real, onde o gemini irá verificar as perguntas e procurar respostas adequadas, baseada em vetores (`embeddings`).
+A robust backend service for a live streaming application, built with Fastify and TypeScript. This API enables users to create and participate in streaming rooms, featuring a dedicated functionality for submitting questions (text and audio) and generating real-time, context-aware answers using Google Gemini's vector-based capabilities.
 
-## ✨ Funcionalidades Principais
+> [!NOTE]
+> **Frontend Application Available:** This project serves as the backend API. It is designed to work in tandem with a separate frontend application. You can find the frontend repository [here](https://github.com/patrick-cuppi/live-streaming-frontend).
 
-- **Gerenciamento de Salas:** Crie e liste salas, onde cada sala representa um evento, palestra ou tópico específico.
-- **Submissão de Perguntas:** Usuários podem submeter perguntas de texto para uma sala específica.
-- **Respostas com IA:** Geração automática de respostas para cada pergunta utilizando o poder do **Google Gemini**.
-- **Upload de Áudio:** Suporte para upload de perguntas em formato de áudio (com transcrição e geração de embeddings).
-- **API Robusta:** Construída com Fastify e TypeScript para performance e segurança de tipos.
+## ✨ Core Features
 
-## 🚀 Tecnologias Utilizadas
+- **Room Management:** Create and list rooms, where each room represents a specific event, lecture, or topic.
+- **Question Submission:** Allow users to submit text-based questions to specific rooms.
+- **AI-Powered Responses:** Automatically generate accurate and context-aware answers for each question using the power of **Google Gemini**.
+- **Audio Uploads:** Support for uploading questions via audio files, enabling future transcriptions and embeddings generation.
+- **Robust API:** Built on top of Fastify and TypeScript, ensuring high performance, type safety, and maintainability.
 
-O projeto foi construído com um conjunto de tecnologias modernas e eficientes:
+## 🚀 Technology Stack
 
-- **Runtime:** [Node.js](https://nodejs.org/)
-- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
-- **Framework:** [Fastify](https://www.fastify.io/)
-- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/)
-- **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
-- **Validação de Schema:** [Zod](https://zod.dev/)
-- **Inteligência Artificial:** [Google Gemini API](https://ai.google.dev/)
-- **CORS:** [@fastify/cors](https://github.com/fastify/fastify-cors)
-- **Upload de Arquivos:** [@fastify/multipart](https://github.com/fastify/fastify-multipart)
-- **Linter & Formatter:** [Biome](https://biomejs.dev/)
+The project leverages a modern and highly efficient technology stack:
 
-## 🔗 Integração com Gemini e Fluxo da Aplicação
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Runtime** | [Node.js](https://nodejs.org/) | JavaScript runtime environment. |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) | Strongly typed programming language. |
+| **Framework** | [Fastify](https://www.fastify.io/) | Fast and low overhead web framework. |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) | Powerful, open source object-relational database. |
+| **ORM** | [Drizzle ORM](https://orm.drizzle.team/) | TypeScript ORM for SQL databases. |
+| **Validation** | [Zod](https://zod.dev/) | TypeScript-first schema declaration and validation. |
+| **AI Integration** | [Google Gemini API](https://ai.google.dev/) | Advanced AI models for context-aware responses. |
+| **CORS** | [@fastify/cors](https://github.com/fastify/fastify-cors) | Cross-Origin Resource Sharing middleware. |
+| **File Uploads** | [@fastify/multipart](https://github.com/fastify/fastify-multipart) | Multipart plugin for Fastify. |
+| **Linter & Formatter** | [Biome](https://biomejs.dev/) | Fast formatter and linter. |
 
-O coração da inteligência da aplicação está na sua integração com a API do Google Gemini. Quando um usuário submete uma nova pergunta, o seguinte fluxo é acionado:
+## 🔗 Architecture & Application Flow
 
-1.  O **Frontend** envia uma requisição `POST` para a rota `/rooms/:roomId/questions` com o texto (título) da pergunta.
-2.  O **Backend (Servidor Fastify)** recebe a requisição, valida os dados e salva a nova pergunta no banco de dados PostgreSQL, associando-a à sala correta.
-3.  Imediatamente após salvar, o backend invoca a **API do Google Gemini**. Ele envia um prompt que inclui o título da sala e o texto da pergunta. Isso fornece contexto à IA, permitindo que ela gere uma resposta mais relevante e precisa.
-4.  O **Gemini** processa o prompt e retorna uma resposta em texto.
-5.  O **Backend** recebe a resposta da IA e atualiza o registro da pergunta no banco de dados com essa resposta.
-6.  O objeto completo da pergunta, agora contendo a resposta gerada pela IA, é retornado ao **Frontend**, que pode então exibi-la para o usuário.
+At the core of the application's intelligence is its integration with the Google Gemini API. When a user submits a new question, the following flow is triggered:
 
-### Diagrama do Fluxo de Criação de Pergunta
+1. The **Frontend** sends a `POST` request to the `/rooms/:roomId/questions` endpoint with the question's text.
+2. The **Fastify Backend** receives the request, validates the payload using Zod, and persists the new question in the PostgreSQL database, linked to the corresponding room.
+3. Immediately after persistence, the backend triggers the **Google Gemini API**. It sends a prompt containing both the room's title (context) and the question text.
+4. **Google Gemini** processes the prompt and returns a generated text response.
+5. The **Backend** receives the AI's response and updates the question's record in the database.
+6. The full question object, now containing the AI-generated answer, is returned to the **Frontend** to be displayed to the user.
+
+### Question Creation Flow
 
 ```mermaid
 sequenceDiagram
-    participant Frontend
-    participant Backend as Servidor Fastify
-    participant Database as PostgreSQL
-    participant AI as Google Gemini
+    participant F as Frontend
+    participant B as Fastify Backend
+    participant DB as PostgreSQL
+    participant AI as Google Gemini API
 
-    Frontend->>+Backend: POST /rooms/{roomId}/questions<br>{"title": "Como funciona a fotossíntese?"}
-    Backend->>+Database: INSERT INTO questions (title, roomId)
-    Database-->>-Backend: Retorna a pergunta criada (sem resposta)
-    Backend->>+AI: generateContent("Contexto: {título da sala}.<br>Pergunta: Como funciona a fotossíntese?")
-    AI-->>-Backend: "A fotossíntese é o processo..."
-    Backend->>+Database: UPDATE questions SET answer = "..." WHERE id = {questionId}
-    Database-->>-Backend: OK
-    Backend-->>-Frontend: 201 Created<br>{"id": "...", "title": "...", "answer": "..."}
+    F->>+B: POST /rooms/{roomId}/questions<br>{"title": "How does React work?"}
+    B->>+DB: INSERT INTO questions (title, roomId)
+    DB-->>-B: Return created question (without answer)
+    B->>+AI: generateContent("Context: {room title}.<br>Question: How does React work?")
+    AI-->>-B: "React is a JavaScript library..."
+    B->>+DB: UPDATE questions SET answer = "..." WHERE id = {questionId}
+    DB-->>-B: OK
+    B-->>-F: 201 Created<br>{"id": "...", "title": "...", "answer": "..."}
 ```
 
-## 🛣️ Rotas da API (Endpoints)
+## 🛣️ API Endpoints
 
-| Método | Rota                               | Descrição                                                              |
-| :----- | :--------------------------------- | :----------------------------------------------------------------------- |
-| `GET`  | `/health`                          | Endpoint de health check para verificar se a API está no ar.             |
-| `GET`  | `/rooms`                           | Retorna uma lista de todas as salas criadas.                             |
-| `POST` | `/rooms`                           | Cria uma nova sala. Body: `{ "title": "string" }`                        |
-| `GET`  | `/rooms/:roomId/questions`         | Retorna todas as perguntas de uma sala específica.                       |
-| `POST` | `/rooms/:roomId/questions`         | Cria uma nova pergunta em uma sala e gera uma resposta com IA. Body: `{ "title": "string" }` |
-| `POST` | `/questions/:questionId/audio`     | Faz o upload de um arquivo de áudio para uma pergunta existente.         |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Health check endpoint to verify API status. |
+| `GET` | `/rooms` | Retrieves a list of all available rooms. |
+| `POST` | `/rooms` | Creates a new room. Body: `{ "title": "string" }` |
+| `GET` | `/rooms/:roomId/questions` | Retrieves all questions for a specific room. |
+| `POST` | `/rooms/:roomId/questions` | Creates a question and generates an AI answer. Body: `{ "title": "string" }` |
+| `POST` | `/questions/:questionId/audio` | Uploads an audio file for an existing question. |
 
-## 🏁 Como Começar (Getting Started)
+## 🏁 Getting Started
 
-Siga os passos abaixo para configurar e executar o projeto localmente.
+Follow these instructions to set up and run the project locally.
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js (v20 ou superior)
-- Docker (para o banco de dados)
-- Uma chave de API do Google Gemini
+Ensure you have the following installed:
+- Node.js (v20 or higher)
+- Docker & Docker Compose (for the database)
+- A valid Google Gemini API Key
 
-### 1. Clonar o Repositório
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/patrick-cuppi/live-streaming-backend
 cd live-streaming-backend
 ```
 
-### 2. Instalar Dependências
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configurar Variáveis de Ambiente
+### 3. Environment Variables
 
-Crie um arquivo `.env` na raiz do diretório `live-streaming-backend` e adicione as seguintes variáveis, substituindo pelos seus valores.
+Create a `.env` file in the root directory and add the following variables, substituting them with your actual values:
 
 ```env
-# Porta da aplicação
+# Application Port
 PORT=3333
 
-# URL de conexão do seu banco de dados PostgreSQL
-DATABASE_URL="postgresql://USUÁRIO:SENHA@localhost:5432/DB_NAME"
+# PostgreSQL Database Connection URL
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/DB_NAME"
 
-# Sua chave de API do Google Gemini
-GOOGLE_API_KEY="your_google_gemini_api_key"
+# Google Gemini API Key
+GOOGLE_API_KEY="your_google_gemini_api_key_here"
 ```
 
-### 4. Configurar o Banco de Dados com Docker
+### 4. Setup Database using Docker
 
-Execute o comando abaixo para iniciar um container PostgreSQL com as credenciais esperadas:
+Start a PostgreSQL container with the required credentials by running:
 
 ```bash
 docker compose up -d
 ```
 
-### 5. Executar as Migrations
+### 5. Database Migrations & Seeding
 
-Com o banco de dados em execução, aplique o schema da aplicação:
+With the database running, apply the schema and seed the initial data:
 
 ```bash
-npx drizzle-kit generate #ou
+# Generate migrations
 npm run db:generate
 
-# E depois:
-
-npx drizzle-kit migrate #ou
+# Apply migrations
 npm run db:migrate
 
-# Para rodar o seed:
-
+# Seed the database
 npm run db:seed
+```
 
-# Para verificar os registros dentro do Banco de Dados, rode:
+To visualize and manage the database records, you can use Drizzle Studio:
 
+```bash
 npx drizzle-kit studio
 ```
-Abaixo temos a tela do Drizzle Studio com as tabelas criadas e o seed gerado:
+Below is a preview of the Drizzle Studio interface showing the created tables and seeded data:
 
 ![Drizzle Studio](./public/drizzle-studio.png)
 
-### 6. Executar a Aplicação
+### 6. Run the Application
 
-Inicie o servidor em modo de desenvolvimento:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-O servidor estará disponível em `http://localhost:3333`.
+The server will be running at `http://localhost:3333`.
 
-### 7. Contribuindo
- 
- Contribuições são bem-vindas! Sinta-se à vontade para abrir *issues* e *pull requests*.
- 
- 1.  Faça um *fork* do projeto.
- 2.  Crie uma nova *branch* (`git checkout -b feature/sua-feature`).
- 3.  Faça o *commit* de suas alterações (`git commit -m 'feat: Adiciona nova feature'`).
- 4.  Faça o *push* para a *branch* (`git push origin feature/sua-feature`).
- 5.  Abra um *Pull Request*.
- 
- ### 📄 Licença
- 
- Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+## 🤝 Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
